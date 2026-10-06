@@ -1,11 +1,15 @@
 <h1>Homepage</h1>
 
 <div class="article-list">
-   {{#articles}}
-   <article>
-        <href="/article/{{slug}}"><img
-        src="/images/{{image}}" alt=""></a>
-        <h2><a href="/article/{{slug}}">{{title}}</a></h2>
-   </article>
-   {{/articles}}
+    {{#articles}}
+    <article>
+        <a href="/article/{{slug}}">
+            <img src="/images/{{image}}" alt="">
+        </a>
+
+        <h2>
+            <a href="/article/{{slug}}">{{name}}</a>
+        </h2>
+    </article>
+    {{/articles}}
 </div>

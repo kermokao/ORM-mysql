@@ -6,10 +6,8 @@ const path = require('path')
 
 // add template engine
 const hbs = require('express-handlebars')
-
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'hbs')
-
 app.engine('hbs', hbs.engine({
     extname: 'hbs',
     defaultLayout: 'main',
@@ -43,34 +41,60 @@ app.get('/', (req, res) => {
     con.query(query, (err, result) => {
         if (err) throw err
 
-        const articles = result
-
-        res.render('index', {
-            articles: articles
-        })
+        const articles = result || []
+        res.render('index', { articles })
     })
 })
 
-// show article by slug
+// single article
 app.get('/article/:slug', (req, res) => {
+
     const query = `
-        SELECT article.*, author.name AS author_name
+        SELECT article.*, author.name AS author_name, author.id AS author_id
         FROM article
         JOIN author ON article.author_id = author.id
         WHERE article.slug = ?
     `
 
     con.query(query, [req.params.slug], (err, result) => {
+
         if (err) throw err
 
-        const article = result.length ? result[0] : null
-
-        if (!article) {
-            return res.status(404).send('Article not found')
-        }
+        const article = result[0]
 
         res.render('article', {
             article: article
+        })
+    })
+})
+
+// author page with all posts by the selected author
+app.get('/author/:id', (req, res) => {
+    const authorQuery = 'SELECT * FROM author WHERE id = ?'
+    const articleQuery = `
+        SELECT article.*, author.name AS author_name
+        FROM article
+        JOIN author ON article.author_id = author.id
+        WHERE article.author_id = ?
+        ORDER BY article.published DESC
+    `
+
+    con.query(authorQuery, [req.params.id], (err, authorResult) => {
+        if (err) throw err
+
+        const author = authorResult[0]
+
+        if (!author) {
+            return res.redirect('/')
+        }
+
+        con.query(articleQuery, [req.params.id], (err, articleResult) => {
+            if (err) throw err
+
+            res.render('author', {
+                author,
+                articles: articleResult || []
+            })
         })
     })
 })
@@ -79,3 +103,4 @@ app.get('/article/:slug', (req, res) => {
 app.listen(3003, () => {
     console.log('App is started at http://localhost:3003')
 })
+

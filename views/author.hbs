@@ -1,0 +1,12 @@
+<h1>Posts by {{author.name}}</h1>
+
+<div class="article-list">
+   {{#each articles}}
+   <article>
+      <a href="/article/{{slug}}">
+         <img src="/images/{{image}}" alt="{{name}}">
+      </a>
+      <h2><a href="/article/{{slug}}">{{name}}</a></h2>
+   </article>
+   {{/each}}
+</div>
